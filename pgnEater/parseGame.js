@@ -31,11 +31,11 @@ module.exports = parseGame = function(pgnString){
 
     // add this move's data
     
-    // wins
+    // increase wins tally
     if (pgn.winner === 'w'){
-      storage[fenkey].whiteWins++
+      storage[fenkey].whiteWins++;
     } else {
-      storage[fenkey].blackWins++
+      storage[fenkey].blackWins++;
     }
 
     // get move object

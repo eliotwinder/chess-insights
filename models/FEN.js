@@ -1,3 +1,5 @@
+var parseMove = require('../pgnEater/parseMove');
+
 var parseRank = function(rank){
   var files = rank.split('');
   var parsedRank = [];
@@ -11,7 +13,7 @@ var parseRank = function(rank){
       } else {
         parsedRank.push(letter);
       }
-    })
+    });
   } else {
     files.map(function(letter) {
       if (letter === '1') {
@@ -31,7 +33,8 @@ var parseFEN = function(fenString) {
     turn: '', // w or b
     castling: '', // KQkq
     enPassant: [], // target en passant square 
-  }
+  };
+
   var parsedFen = fenString.split(' ');
 
   fen.board = parsedFen[0].split('/').map(function(rank){
@@ -98,29 +101,34 @@ FEN.prototype.makeString = function(minusTurn) {
   fenString.push(' ');
 
   fenString.push(this.enPassant);
-  fenString.push(' ');
 
   if (!minusTurn){
+    fenString.push(' ');
     fenString.push(this.turnCount);
     fenString.push(' ');  
   
     fenString.push(this.halfTurnCount);
-    fenString.push(' ');
   }
 
-  console.log('fdsafdsa',fenString.join(''));
   return fenString.join('');
 };
 
-FEN.makeMove = function(move, fen){
-  fen.board[move.toRank][move.toFile] = move.piece;
-  fen.board[move.fromRank][move.toRank] = 0;
-  if (fen.turn === 'w') {
-    fen.turn = 'b';
+FEN.prototype.makeMove = function(move){
+  move = parseMove(move, this);
+  this.board[move.toRank][move.toFile] = move.piece;
+  this.board[move.fromRank][move.fromFile] = 0;
+  if (this.turn === 'w') {
+    this.turn = 'b';
   } else {
-    fen.turn = 'w';
+    this.turn = 'w';
   }
-  return new FEN(fen.makeString());
+
+  // TODO: why does this not return if i return 'this'
+  return new FEN(this.makeString());
+};
+
+FEN.makeNewBoard = function(){
+  return new FEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 };
 
 module.exports = FEN;
